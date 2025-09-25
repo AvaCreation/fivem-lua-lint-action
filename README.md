@@ -3,7 +3,7 @@
 This GitHub Action runs `luacheck` on your Lua codebase against known FiveM natives for any GitHub repository!
 
 > Now supports FiveM Lua backtick syntax.
-
+> Now supports RedM natives (thanks to https://github.com/alloc8or)
 ---
 
 ## Using
@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Lint
-        uses: iLLeniumStudios/fivem-lua-lint-action@v2
+        uses: mathu-lmn/fivem-lua-lint-action@v2
 ```
 
 This will automatically run `luacheck` for both commits and pull requests!
@@ -48,7 +48,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Lint
-        uses: iLLeniumStudios/fivem-lua-lint-action@v2
+        uses: mathu-lmn/fivem-lua-lint-action@v2
         with:
           capture: "junit.xml"
           args: "-t --formatter JUnit"
