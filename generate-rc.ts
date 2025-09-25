@@ -78,7 +78,8 @@ async function fetchAllNatives(): Promise<MappedNativeResponse> {
   const sharedNatives: string[] = []
   const urls = [
     "https://runtime.fivem.net/doc/natives_cfx.json",
-    "https://runtime.fivem.net/doc/natives.json"
+    "https://runtime.fivem.net/doc/natives.json",
+    "https://raw.githubusercontent.com/alloc8or/rdr3-nativedb-data/master/natives.json"
   ]
 
   for (const url of urls) {
