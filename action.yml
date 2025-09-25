@@ -1,6 +1,6 @@
 # action.yml
-name: "luacheck for FiveM"
-description: "Runs luacheck on a project with FiveM natives"
+name: "luacheck for FiveM & RedM"
+description: "Runs luacheck on a project with FiveM & RedM natives"
 inputs:
   args:
     description: "luacheck arguments to pass"
