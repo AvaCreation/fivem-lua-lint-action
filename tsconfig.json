@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
     "strict": true,
-    "target": "ES6",
+    "target": "ES2020",
     "moduleResolution": "node",
-    "module": "CommonJS",
+    "module": "ES2020",
+    "allowSyntheticDefaultImports": true,
     "keyofStringsOnly": false,
     "strictFunctionTypes": true,
     "strictNullChecks": true,

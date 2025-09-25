@@ -1,7 +1,11 @@
 import fetch from "node-fetch"
 import * as fs from "fs"
 import * as path from "path"
-import * as ansi from "ansi-colors"
+import { fileURLToPath } from "url"
+import ansi from "ansi-colors"
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 interface CfxNative {
   name: string
@@ -77,40 +81,52 @@ async function fetchAllNatives(): Promise<MappedNativeResponse> {
   const serverNatives: string[] = []
   const sharedNatives: string[] = []
   const urls = [
-    "https://runtime.fivem.net/doc/natives_cfx.json",
-    "https://runtime.fivem.net/doc/natives.json",
+    "https://static.cfx.re/natives/natives_cfx.json",
+    "https://static.cfx.re/natives/natives.json",
     "https://raw.githubusercontent.com/alloc8or/rdr3-nativedb-data/master/natives.json"
   ]
 
   for (const url of urls) {
     console.log(ansi.cyan(`fetch => ${ansi.blueBright(url)}...`))
-    await fetch(url)
-      .then(r => r.json() as Promise<CfxNativesResponse>)
-      .then(data => {
-        const nativesList: CfxNative[] = Object.entries(data).reduce(
-          (natives: CfxNative[], [_, list]) => {
-            natives.push(...Object.values(list))
-            return natives
-          },
-          []
+    try {
+      const response = await fetch(url)
+      if (!response.ok) {
+        console.log(
+          ansi.red(
+            `Failed to fetch ${url}: ${response.status} ${response.statusText}`
+          )
         )
+        continue
+      }
+      const data = (await response.json()) as CfxNativesResponse
 
-        clientNatives.push(
-          ...nativesList
-            .filter(n => !n.apiset || n.apiset === "client")
-            .reduce(reduceNativesToNames, [])
-        )
-        serverNatives.push(
-          ...nativesList
-            .filter(n => n.apiset === "server")
-            .reduce(reduceNativesToNames, [])
-        )
-        sharedNatives.push(
-          ...nativesList
-            .filter(n => n.apiset === "shared")
-            .reduce(reduceNativesToNames, [])
-        )
-      })
+      const nativesList: CfxNative[] = Object.entries(data).reduce(
+        (natives: CfxNative[], [_, list]) => {
+          natives.push(...Object.values(list))
+          return natives
+        },
+        []
+      )
+
+      clientNatives.push(
+        ...nativesList
+          .filter(n => !n.apiset || n.apiset === "client")
+          .reduce(reduceNativesToNames, [])
+      )
+      serverNatives.push(
+        ...nativesList
+          .filter(n => n.apiset === "server")
+          .reduce(reduceNativesToNames, [])
+      )
+      sharedNatives.push(
+        ...nativesList
+          .filter(n => n.apiset === "shared")
+          .reduce(reduceNativesToNames, [])
+      )
+    } catch (error) {
+      console.log(ansi.red(`Error fetching ${url}: ${error}`))
+      continue
+    }
   }
 
   return {

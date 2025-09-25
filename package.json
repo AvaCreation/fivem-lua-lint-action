@@ -1,6 +1,7 @@
 {
   "name": "fivem-lua-lint-action",
   "version": "0.0.0",
+  "type": "module",
   "author": {
     "name": "GoatGeek",
     "email": "goatgeek@relta.net"

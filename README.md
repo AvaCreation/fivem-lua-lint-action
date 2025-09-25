@@ -4,6 +4,7 @@ This GitHub Action runs `luacheck` on your Lua codebase against known FiveM nati
 
 > Now supports FiveM Lua backtick syntax.
 > Now supports RedM natives (thanks to https://github.com/alloc8or)
+
 ---
 
 ## Using
@@ -59,7 +60,6 @@ jobs:
           report_paths: "**/junit.xml"
           check_name: Linting Report
           fail_on_failure: false
-
 ```
 
 ---
@@ -106,6 +106,7 @@ jobs:
 ```
 
 This will recognize MySQL globals like:
+
 - `MySQL.query()`
 - `MySQL.Sync.fetchAll()`
 - `MySQL.Async.execute()`
@@ -132,7 +133,7 @@ stds.mysql = {
         MySQL = {
             fields = {
                 "query",
-                "update", 
+                "update",
                 "scalar",
                 "rawExecute",
                 "single",
@@ -144,7 +145,7 @@ stds.mysql = {
                     fields = {
                         "prepare",
                         "fetchScalar",
-                        "fetchSingle", 
+                        "fetchSingle",
                         "fetchAll",
                         "transaction",
                         "insert",
@@ -156,7 +157,7 @@ stds.mysql = {
                         "prepare",
                         "fetchScalar",
                         "fetchSingle",
-                        "fetchAll", 
+                        "fetchAll",
                         "transaction",
                         "insert",
                         "execute",
