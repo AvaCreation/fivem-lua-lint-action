@@ -52,7 +52,7 @@ const uniqueArray = <T>(a: T[]): T[] => {
 }
 
 const reduceNativesToNames = (results: string[], item: CfxNative): string[] => {
-  let name = item.name && macroCaseToSnake(item.name) || `N_${item.hash}`
+  let name = (item.name && macroCaseToSnake(item.name)) || `N_${item.hash}`
   results.push(name)
   ;(item.aliases || []).forEach(a => {
     if (a.slice(0, 1) === "_") {
@@ -85,13 +85,15 @@ async function fetchAllNatives(): Promise<MappedNativeResponse> {
   for (const url of urls) {
     console.log(ansi.cyan(`fetch => ${ansi.blueBright(url)}...`))
     await fetch(url)
-      .then<CfxNativesResponse>(r => r.json())
+      .then(r => r.json() as Promise<CfxNativesResponse>)
       .then(data => {
-        const nativesList: CfxNative[] = Object.entries(data)
-          .reduce((natives: CfxNative[], [_, list]) => {
+        const nativesList: CfxNative[] = Object.entries(data).reduce(
+          (natives: CfxNative[], [_, list]) => {
             natives.push(...Object.values(list))
             return natives
-          }, [])
+          },
+          []
+        )
 
         clientNatives.push(
           ...nativesList
