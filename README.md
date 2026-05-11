@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Lint
-        uses: mathu-lmn/fivem-lua-lint-action@v2
+        uses: avacreation/fivem-lua-lint-action@v2
 ```
 
 This will automatically run `luacheck` for both commits and pull requests!
@@ -49,7 +49,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Lint
-        uses: mathu-lmn/fivem-lua-lint-action@v2
+        uses: avacreation/fivem-lua-lint-action@v2
         with:
           capture: "junit.xml"
           args: "-t --formatter JUnit"
@@ -100,7 +100,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Lint
-        uses: mathu-lmn/fivem-lua-lint-action@v2
+        uses: avacreation/fivem-lua-lint-action@v2
         with:
           extra_libs: "mysql"
 ```
@@ -118,7 +118,7 @@ You can combine multiple libraries using the `+` separator:
 
 ```yml
 - name: Lint
-  uses: mathu-lmn/fivem-lua-lint-action@v2
+  uses: avacreation/fivem-lua-lint-action@v2
   with:
     extra_libs: "mysql+esx+polyzone"
 ```
