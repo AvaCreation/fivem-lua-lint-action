@@ -5,3 +5,4 @@
 !generate-rc.ts
 !tsconfig.json
 !.luacheckrc.template
+!scripts

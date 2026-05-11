@@ -34,6 +34,17 @@ else
   luacheck --operators "+=" $LUACHECK_ARGS $LUACHECK_PATH || EXIT_CODE=$?
 fi
 
+PLAIN_OUT="$(mktemp)"
+luacheck --operators "+=" $LUACHECK_ARGS --formatter plain $LUACHECK_PATH >"$PLAIN_OUT" 2>&1 || true
+
+CLIENT_NATIVES_JSON="/luacheck-fivem/client-natives.json"
+SERVER_NATIVES_JSON="/luacheck-fivem/server-natives.json"
+HIGHLIGHT_SCRIPT="/luacheck-fivem/scripts/highlight-wrong-apiset.mjs"
+if [ -f "$HIGHLIGHT_SCRIPT" ] && [ -f "$CLIENT_NATIVES_JSON" ] && [ -f "$SERVER_NATIVES_JSON" ]; then
+  node "$HIGHLIGHT_SCRIPT" "$PLAIN_OUT" "$CLIENT_NATIVES_JSON" "$SERVER_NATIVES_JSON"
+fi
+rm -f "$PLAIN_OUT"
+
 echo "exit => $EXIT_CODE"
 if [ "$LUACHECK_EXIT_ON_WARN" = true ]; then
  exit $EXIT_CODE

@@ -2,4 +2,6 @@
 *.idea/
 node_modules/
 .luacheckrc
+client-natives.json
+server-natives.json
 **/*.js

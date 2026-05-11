@@ -165,6 +165,17 @@ fetchAllNatives().then(natives => {
   template = template.replace(/%%EXTRA%%/g, extraLibs)
 
   fs.writeFileSync(path.join(__dirname, ".luacheckrc.default"), template)
+
+  // Used in entrypoints to determine which natives are valid in which apiset
+  fs.writeFileSync(
+    path.join(__dirname, "client-natives.json"),
+    JSON.stringify(natives.client)
+  )
+  fs.writeFileSync(
+    path.join(__dirname, "server-natives.json"),
+    JSON.stringify(natives.server)
+  )
+
   console.log(ansi.gray(`=`.repeat(29)))
   console.log(
     ansi.gray(
