@@ -35,8 +35,95 @@ const text = fs.readFileSync(outFile, "utf-8")
 
 const norm = p => p.replace(/\\/g, "/")
 
+function parseFxManifest(content) {
+  // Strip line comments
+  const clean = content.replace(/--\[\[[\s\S]*?\]\]/g, "").replace(/--[^\n]*/g, "")
+  const result = {}
+  const stringReg = /^\s*(\w+)\s+'([^']+)'/gm
+  let m
+  while ((m = stringReg.exec(clean)) !== null) {
+    result[m[1]] = [m[2]]
+  }
+  const tableReg = /^\s*(\w+)\s*\{([^}]*)\}/gm
+  while ((m = tableReg.exec(clean)) !== null) {
+    const items = [...m[2].matchAll(/'([^']+)'/g)].map(x => x[1])
+    if (items.length) result[m[1]] = items
+  }
+  return result
+}
+
+function globToRegex(glob) {
+  const g = norm(glob)
+  let re = "^"
+  for (let i = 0; i < g.length; i++) {
+    const c = g[i]
+    if (c === "*") {
+      if (g[i + 1] === "*") {
+        re += ".*"
+        i++
+        if (g[i + 1] === "/") i++
+      } else {
+        re += "[^/]*"
+      }
+    } else if (c === "?") {
+      re += "[^/]"
+    } else if (/[.+^${}()|[\]\\]/.test(c)) {
+      re += "\\" + c
+    } else {
+      re += c
+    }
+  }
+  return new RegExp(re + "$")
+}
+
+function walkLua(dir, out, root) {
+  let entries
+  try { entries = fs.readdirSync(dir, { withFileTypes: true }) } catch { return }
+  for (const e of entries) {
+    const full = path.join(dir, e.name)
+    if (e.isDirectory()) {
+      if (e.name === "node_modules" || e.name === ".git") continue
+      walkLua(full, out, root)
+    } else if (e.isFile() && e.name.endsWith(".lua")) {
+      out.push(norm(path.relative(root, full)))
+    }
+  }
+}
+
+function buildManifestMap(root) {
+  const map = new Map()
+  const manifest = path.join(root, "fxmanifest.lua")
+  if (!fs.existsSync(manifest)) return map
+  let parsed
+  try { parsed = parseFxManifest(fs.readFileSync(manifest, "utf-8")) } catch { return map }
+  const luaFiles = []
+  walkLua(root, luaFiles, root)
+  const kinds = {
+    server_script: "server", server_scripts: "server",
+    client_script: "client", client_scripts: "client",
+    shared_script: "shared", shared_scripts: "shared",
+  }
+  for (const [key, kind] of Object.entries(kinds)) {
+    const entries = parsed[key]
+    if (!entries) continue
+    for (const entry of entries) {
+      if (entry.startsWith("@")) continue
+      const re = globToRegex(entry)
+      for (const f of luaFiles) {
+        if (!re.test(f)) continue
+        if (!map.has(f)) map.set(f, kind)
+      }
+    }
+  }
+  return map
+}
+
+const manifestMap = buildManifestMap(process.cwd())
+
 const isServerContext = filePath => {
-  const n = norm(filePath)
+  const n = norm(path.relative(process.cwd(), path.resolve(filePath)))
+  const kind = manifestMap.get(n)
+  if (kind) return kind === "server"
   const base = path.basename(n)
   if (/\/server\//.test(n)) return true
   if (base === "server.lua") return true
@@ -45,7 +132,9 @@ const isServerContext = filePath => {
 }
 
 const isClientContext = filePath => {
-  const n = norm(filePath)
+  const n = norm(path.relative(process.cwd(), path.resolve(filePath)))
+  const kind = manifestMap.get(n)
+  if (kind) return kind === "client"
   const base = path.basename(n)
   if (/\/client\//.test(n)) return true
   if (base === "client.lua") return true
